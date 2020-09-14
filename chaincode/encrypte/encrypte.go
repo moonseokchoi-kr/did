@@ -1,13 +1,16 @@
-package chaincode
+package encrypte
 
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/btcsuite/btcutil/base58"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/segmentio/ksuid"
 )
 
@@ -139,4 +142,78 @@ func verify(publickey string, signature string, message string) bool {
 	verify := ecdsa.VerifyASN1(&pubkey, signhash, sig)
 
 	return verify
+}
+
+func getJwt() (string, error) {
+
+	expirationTime := time.Now().Add(5 * time.Minute)
+	type Publickey struct {
+		Type      string `json:"type"`
+		publicKey string `json:"publicKeybase58"`
+		created   int64  `json:"created"`
+		revoked   int64  `json:"revoked"`
+	}
+	type Message struct {
+		id        string
+		publickey Publickey
+		jwt.StandardClaims
+	}
+	pubkey := &Message{
+		id: getSpecificID(),
+		publickey: Publickey{
+			Type:      "ecdsa",
+			publicKey: "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u",
+			created:   time.Now().Unix(),
+		},
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, pubkey)
+
+	tokenString, err := token.SignedString("JwtKey")
+
+	if err != nil {
+		return "", fmt.Errorf("Unexpected Error! : %q", err)
+	} else {
+		return tokenString, nil
+	}
+}
+
+/**
+* decode json web token
+* author : choimoonseok
+* date : 2020-09-13
+ */
+func decodeJwt(tokenString string) ([]byte, string) {
+	type Publickey struct {
+		Type      string `json:"type"`
+		publicKey string `json:"publicKeybase58"`
+		created   int64  `json:"created"`
+		revoked   int64  `json:"revoked"`
+	}
+	type Message struct {
+		id        string
+		publickey Publickey
+		jwt.StandardClaims
+	}
+	token, err := jwt.ParseWithClaims(tokenString, &Message{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte("Jwtkey"), nil
+	})
+	if err != nil {
+		fmt.Errorf("Errsign!!")
+		return nil, ""
+	}
+	if message, ok := token.Claims.(*Message); ok && token.Valid {
+		id := message.id
+		pubkey, err := json.Marshal(message.publickey)
+		if err != nil {
+			return nil, ""
+		}
+		return pubkey, id
+
+	} else {
+		return nil
+	}
 }

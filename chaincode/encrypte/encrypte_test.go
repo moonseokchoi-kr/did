@@ -1,10 +1,10 @@
-package chaincode
+package encrypte
 
 import (
 	"strconv"
 	"testing"
 )
-
+jwt := "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibWVzc2FnZSI6eyJ0eXBlIjoiZWNkc2EiLCJwdWJsaWNLZXlCYXNlNTgiOiIxM240czV0RkFtb0NZSExzbko5azFuc3BzemJ1UWd2amFGcm1KOGNTYmZMbUhER05Ea2M2OVhDRXhYOVBwYkRCTEEyNVZLMkdzdllYdlhFaTl4cjFEV0ViVmZVSnU4dSIsImNyZWF0ZWQiOjE1ODM5MjB9LCJpYXQiOjE1MTYyMzkwMjJ9.uafxc8karSrJaycXeEOb0YdQl8fg_FprD7Oe0iAsCEMn4tijdodvevISDLeFjrsuSgmeTATTMpPRQOCxb7O2rA"
 func TestDIDid(t *testing.T) {
 	want := "Hello, world."
 	if got := "Hello, world."; got != want {
