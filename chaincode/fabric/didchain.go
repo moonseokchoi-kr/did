@@ -11,7 +11,7 @@ import (
 	"fmt"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	
+	"github.com/moonseokchoi-kr/did/chaincode/encrypte"
 )
 
 // SmartContract of this fabric sample
@@ -90,5 +90,6 @@ func (s *SmartContract) CreateDid(ctx contractapi.TransactionContextInterface, m
 	}else{
 		InitDID(ctx)
 	}
+	return nil
 
 }
