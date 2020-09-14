@@ -4,13 +4,14 @@ Copyright IBM Corp. All Rights Reserved.
 SPDX-License-identifier: Apache-2.0
 */
 
-package chaincode
+package did
 
 import (
 	"encoding/json"
 	"fmt"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	
 )
 
 // SmartContract of this fabric sample
@@ -51,64 +52,43 @@ type Service struct {
 	serviceEndpoint string `json:"serviceEndPoint`
 }
 
-// CreateDid creates a new Did by placing the main Did details in the DidCollection
-// that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
-func (s *SmartContract) CreateDid(ctx contractapi.TransactionContextInterface) error {
+func (s *SmartContract) InitDID(ctx contractapi.TransactionContextInterface) error {
+	did := &Did{
+		context : "https://www.did.com"
+		id: encrypte.getSpecificID()
+		created : time.Now().Unix()
+	}
+	didJSON, err := json.Marshal(did)
 
-	// Get new Did from transient map
-	transientMap, err := ctx.GetStub().GetTransient()
+	err := ctx.GetStub().PutState(did.id, didJSON)
 	if err != nil {
-		return fmt.Errorf("error getting transient: %v", err)
-	}
-
-	// Did properties are private, therefore they get passed in transient field, instead of func args
-	transientDidJSON, ok := transientMap["Did_properties"]
-	if !ok {
-		//log error to stdout
-		return fmt.Errorf("Did not found in the transient map input")
-	}
-	type DidInput struct {
-		context        string           `json:"context"`
-		id             string           `json:"id"`
-		created        string           `json:"created"`
-		publickey      []PublicKey      `json:"publicKey"`
-		authentication []Authentication `json:"authenticaiton"`
-		service        []Service        `json:"service"`
-	}
-	var didInput DidInput
-	err = json.Unmarshal(transientDidJSON, &didInput)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal JSON: %v", err)
-	}
-
-	if len(didInput.context) == 0 {
-		return fmt.Errorf("context field must be a non-empty string")
-	}
-	if len(didInput.id) == 0 {
-		return fmt.Errorf("id field must be a non-empty string")
-	}
-
-	// Make submitting client the owner
-	Did := Did{
-		context:        didInput.context,
-		id:             didInput.id,
-		created:        didInput.created,
-		publickey:      didInput.publickey,
-		authentication: didInput.authentication,
-		service:        didInput.service,
-	}
-	DidJSONasBytes, err := json.Marshal(Did)
-	if err != nil {
-		return fmt.Errorf("failed to marshal Did into JSON: %v", err)
-	}
-
-	// Save Did to private data collection
-	// Typical logger, logs to stdout/file in the fabric managed docker container, running this chaincode
-	// Look for container name like dev-peer0.org1.example.com-{chaincodename_version}-xyz
-	err = ctx.GetStub().PutState(didInput.id, DidJSONasBytes)
-	if err != nil {
-		return fmt.Errorf("failed to put Did into private data collecton: %v", err)
+		return fmt.Errorf("failed to put to world state. %v", err)
 	}
 
 	return nil
+}
+
+// CreateDid creates a new Did by placing the main Did details in the DidCollection
+// that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
+func (s *SmartContract) CreateDid(ctx contractapi.TransactionContextInterface, msg string) error {
+	pubkey, id := encrypte.decodeJwt(msg)
+	exists, err := s.AssetExists(ctx, id)
+	if err != nil {
+		return err
+	}
+	if exists {
+		var pubkeyJSON PublicKey
+		err = json.UnMarshal(pubkeyJSON, &PublicKey)
+		did := &Did{
+			context : "https://www.did.com",
+			id: id,
+			created: time.Now().Unix(),
+			publicKey: pubkeyJSON
+		}
+		didJSON, err := json.Marshal(did)
+		return ctx.GetStub().PutState(id, didJSON)
+	}else{
+		InitDID(ctx)
+	}
+
 }

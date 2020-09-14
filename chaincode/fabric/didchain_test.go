@@ -1,13 +1,15 @@
-package chaincode
+package did
 
+//TODO  look at the example file and change code to create fucntion
 import (
+	"did/chaincode/fabric/mocks"
 	"encoding/json"
 	"os"
 	"testing"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"github.com/moonseokchoi-kr/did/chaincode/fabric/mocks"
+	"github.com/hyperledger/fabric-samples/asset-transfer-private-data/chaincode-go/chaincode"
 	"github.com/stretchr/testify/require"
 )
 
@@ -63,14 +65,11 @@ func TestCreateDid(t *testing.T) {
 
 	// case when asset exists, GetPrivateData returns a valid data from ledger
 	testAsset = &DidInput{
-		id:             "id1",
-		created:        "2830949",
-		publickey:      nil,
-		authentication: nil,
-		service:        nil,
+		context: "https://www.w3c.org.go",
+		id:      "id1",
+		created: "2830949",
 	}
 	setReturnAssetPropsInTransientMap(t, chaincodeStub, testAsset)
-	chaincodeStub.GetStateStub(testAsset.id)
 	err = assetTransferCC.CreateDid(transactionContext)
 	require.EqualError(t, err, "this asset already exists: id1")
 }
@@ -79,6 +78,7 @@ func TestCreateAssetSuccessful(t *testing.T) {
 	transactionContext, chaincodeStub := prepMocksAsOrg1()
 	assetTransferCC := chaincode.SmartContract{}
 	testAsset := &DidInput{
+		context:        "https://www.w3c.org.go",
 		id:             "id1",
 		created:        "210219384",
 		publickey:      nil,
@@ -112,15 +112,12 @@ func setReturnAssetPropsInTransientMap(t *testing.T, chaincodeStub *mocks.Chainc
 		require.NoError(t, err)
 	}
 	assetPropMap := map[string][]byte{
-		"asset_properties": assetBytes,
+		"Did_properties": assetBytes,
 	}
 	chaincodeStub.GetTransientReturns(assetPropMap, nil)
 	return assetBytes
 }
-/*
-func preMockAsOrg1() (*mocks.TransactionContext, *mocks.ChaincodeStub) {
 
-}
 func prepMocksAsOrg1() (*mocks.TransactionContext, *mocks.ChaincodeStub) {
 	return prepMocks(myOrg1Msp, myOrg1Clientid)
 }
@@ -140,4 +137,3 @@ func prepMocks(orgMSP, clientID string) (*mocks.TransactionContext, *mocks.Chain
 	transactionContext.GetClientIdentityReturns(clientIdentity)
 	return transactionContext, chaincodeStub
 }
-*?
