@@ -22,7 +22,7 @@ var pubkeyCurve = elliptic.P256()
 *author : choimoonseok
 *date : 2020-09-06
  */
-func getSpecificID() string {
+func GetSpecificID() string {
 	id := ksuid.New()
 	return id.String()
 }
@@ -32,7 +32,7 @@ func getSpecificID() string {
 * author : choimoonseok
 * date : 2020-09-08
 **/
-func stringTobyte(msg string) []byte {
+func StringToByte(msg string) []byte {
 	return []byte(msg)
 }
 
@@ -41,7 +41,7 @@ func stringTobyte(msg string) []byte {
 *author : choimoonseok
 *date : 2020-09-06
  */
-func makeECDSAKey(msg string) (string, string, string) {
+func MakeECDSAKey(msg string) (string, string, string) {
 
 	privatekey := new(ecdsa.PrivateKey)
 	privatekey, err := ecdsa.GenerateKey(pubkeyCurve, rand.Reader)
@@ -51,8 +51,8 @@ func makeECDSAKey(msg string) (string, string, string) {
 	}
 
 	pubkey := privatekey.PublicKey
-	siginature := signHash(msg, privatekey)
-	return encodeKey(privatekey, pubkey, siginature)
+	siginature := SignHash(msg, privatekey)
+	return EncodeKey(privatekey, pubkey, siginature)
 }
 
 /**
@@ -60,48 +60,48 @@ func makeECDSAKey(msg string) (string, string, string) {
 *author : choimoonseok
 *date : 2020-09-06
  */
-func encodeKey(privateKey *ecdsa.PrivateKey, publickey ecdsa.PublicKey, signiture []byte) (string, string, string) {
+func EncodeKey(privateKey *ecdsa.PrivateKey, publickey ecdsa.PublicKey, Signiture []byte) (string, string, string) {
 	privateByte := privateKey.D.Bytes()
 	priBase58 := base58.CheckEncode(privateByte, 0)
 	publicByte := elliptic.Marshal(publickey, publickey.X, publickey.Y)
 	pubBase58 := base58.CheckEncode(publicByte, 0)
-	sigBase58 := base58.CheckEncode(signiture, 0)
+	sigBase58 := base58.CheckEncode(Signiture, 0)
 
 	return priBase58, pubBase58, sigBase58
 }
 
 /**
-* hash to message usgin sha256
+* Hash to message usgin sha256
 *author : choimoonseok
 *date : 2020-09-06
  */
-func hash(b []byte) []byte {
+func Hash(b []byte) []byte {
 	h := sha256.New()
 	h.Write(b)
 	return h.Sum(nil)
 }
 
 /**
-* created signature
+* created Signature
 *author : choimoonseok
 *date : 2020-09-06
  */
-func signHash(message string, privateKey *ecdsa.PrivateKey) []byte {
-	signhash := hash(stringTobyte(message))
-	signature, serr := ecdsa.SignASN1(rand.Reader, privateKey, signhash)
+func SignHash(message string, privateKey *ecdsa.PrivateKey) []byte {
+	SignHash := Hash(StringToByte(message))
+	Signature, serr := ecdsa.SignASN1(rand.Reader, privateKey, SignHash)
 	if serr != nil {
 		fmt.Println(serr)
 	}
 
-	return signature
+	return Signature
 }
 
 /**
-* decode base 58
+* Decode base 58
 *author : choimoonseok
 *date : 2020-09-06
  */
-func decodepubkey(publickey string) ecdsa.PublicKey {
+func DecodePublicKey(publickey string) ecdsa.PublicKey {
 	pubByte, _, err := base58.CheckDecode(publickey)
 	if err != nil {
 		fmt.Println(err)
@@ -117,12 +117,12 @@ func decodepubkey(publickey string) ecdsa.PublicKey {
 }
 
 /**
-* decode base 58 for signature
+* Decode base 58 for Signature
 *author : choimoonseok
 *date : 2020-09-06
  */
-func decodeSignature(signature string) []byte {
-	sigbyte, _, err := base58.CheckDecode(signature)
+func DecodeSignature(Signature string) []byte {
+	sigbyte, _, err := base58.CheckDecode(Signature)
 
 	if err != nil {
 		fmt.Println(err)
@@ -131,48 +131,75 @@ func decodeSignature(signature string) []byte {
 }
 
 /**
-* verify key
+* Verify key
 *author : choimoonseok
 *date : 2020-09-06
  */
-func verify(publickey string, signature string, message string) bool {
-	signhash := hash(stringTobyte(message))
-	pubkey := decodepubkey(publickey)
-	sig := decodeSignature(signature)
-	verify := ecdsa.VerifyASN1(&pubkey, signhash, sig)
+func Verify(publickey string, Signature string, message string) bool {
+	SignHash := Hash(StringToByte(message))
+	pubkey := DecodePublicKey(publickey)
+	sig := DecodeSignature(Signature)
+	Verify := ecdsa.VerifyASN1(&pubkey, SignHash, sig)
 
-	return verify
+	return Verify
 }
 
-func getJwt() (string, error) {
+/**
+* GetJWT is Get JSON Web Token
+ */
+func GetJWT() (string, error) {
 
 	expirationTime := time.Now().Add(5 * time.Minute)
 	type Publickey struct {
+		ID        string `json:"id"`
 		Type      string `json:"type"`
-		publicKey string `json:"publicKeybase58"`
-		created   int64  `json:"created"`
-		revoked   int64  `json:"revoked"`
+		PublicKey string `json:"publicKeybase58"`
+		Created   int64  `json:"created"`
+		Revoked   int64  `json:"revoked"`
 	}
-	type Message struct {
-		id        string
-		publickey Publickey
+	type CredentialDefinition struct {
+		Name   string
+		Birth  string
+		Phone  string
+		Age    int64
+		Gender string
 		jwt.StandardClaims
 	}
-	pubkey := &Message{
-		id: getSpecificID(),
-		publickey: Publickey{
+	type Message struct {
+		ID                   string
+		CredentialDefinition string
+		Publickey            Publickey
+		jwt.StandardClaims
+	}
+	credentialDefinition := &CredentialDefinition{
+		Name:           "MoonSeok",
+		Birth:          "1997-06-13",
+		Phone:          "010-1234-5678",
+		Age:            24,
+		Gender:         "M",
+		StandardClaims: jwt.StandardClaims{},
+	}
+
+	tokenInfo := jwt.NewWithClaims(jwt.SigningMethodHS256, credentialDefinition)
+	tokenInfoString, err := tokenInfo.SignedString([]byte("123849"))
+	id := GetSpecificID()
+	claims := &Message{
+		ID: id,
+		Publickey: Publickey{
+			ID:        id + "#key1",
 			Type:      "ecdsa",
-			publicKey: "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u",
-			created:   time.Now().Unix(),
+			PublicKey: "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u",
+			Created:   time.Now().Unix(),
 		},
+		CredentialDefinition: tokenInfoString,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, pubkey)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString("JwtKey")
+	tokenString, err := token.SignedString([]byte("JwtKey"))
 
 	if err != nil {
 		return "", fmt.Errorf("Unexpected Error! : %q", err)
@@ -180,40 +207,49 @@ func getJwt() (string, error) {
 		return tokenString, nil
 	}
 }
+func GetToken(j []byte) (string, error) {
+	type Claims struct {
+	}
+	return "", nil
+}
 
 /**
-* decode json web token
+* Decode json web token
 * author : choimoonseok
 * date : 2020-09-13
  */
-func decodeJwt(tokenString string) ([]byte, string) {
+func DecodeJwt(tokenString string) ([]byte, string, string) {
 	type Publickey struct {
+		ID        string `json:"id"`
 		Type      string `json:"type"`
-		publicKey string `json:"publicKeybase58"`
-		created   int64  `json:"created"`
-		revoked   int64  `json:"revoked"`
+		PublicKey string `json:"publicKeybase58"`
+		Created   int64  `json:"created"`
+		Revoked   int64  `json:"revoked"`
 	}
 	type Message struct {
-		id        string
-		publickey Publickey
+		ID                   string
+		CredentialDefinition string
+		Publickey            Publickey
 		jwt.StandardClaims
 	}
 	token, err := jwt.ParseWithClaims(tokenString, &Message{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("Jwtkey"), nil
+		return []byte("JwtKey"), nil
 	})
 	if err != nil {
-		fmt.Errorf("Errsign!!")
-		return nil, ""
+		fmt.Errorf("ErrSign!!")
+		return nil, "", ""
 	}
 	if message, ok := token.Claims.(*Message); ok && token.Valid {
-		id := message.id
-		pubkey, err := json.Marshal(message.publickey)
+		id := message.ID
+		credential := message.CredentialDefinition
+		pubkey, err := json.Marshal(message.Publickey)
+
 		if err != nil {
-			return nil, ""
+			return nil, "", ""
 		}
-		return pubkey, id
+		return pubkey, id, credential
 
 	} else {
-		return nil
+		return nil, "", ""
 	}
 }

@@ -9,9 +9,11 @@ package did
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
+	"did/chaincode/encrypte"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"github.com/moonseokchoi-kr/did/chaincode/encrypte"
 )
 
 // SmartContract of this fabric sample
@@ -21,75 +23,158 @@ type SmartContract struct {
 
 // Did describes main Did details that are visible to all organizations
 type Did struct {
-	context        string           `json:"context"`
-	id             string           `json:"id"`
-	created        string           `json:"created"`
-	publickey      []PublicKey      `json:"publicKey"`
-	authentication []Authentication `json:"authenticaiton"`
-	service        []Service        `json:"service"`
+	Context        string           `json:"context"`
+	ID             string           `json:"id"`
+	Created        int64            `json:"created"`
+	Updated        int64            `json:updated`
+	Publickey      []PublicKey      `json:"publicKey"`
+	Authentication []Authentication `json:"authenticaiton"`
+	Service        []Service        `json:"service"`
 }
 
 //PublicKey is save the key for authenfication
 type PublicKey struct {
-	id        string `json:"id"`
+	ID        string `json:"id"`
 	Type      string `json:"type"`
-	publicKey string `json:"publicKeybase58"`
-	created   string `json:"created"`
-	revoked   string `json:"revoked"`
+	PublicKey string `json:"publicKeybase58"`
+	Created   int64  `json:"created"`
+	Revoked   int64  `json:"revoked"`
 }
 
 //Authentication id useing authentication information when verify to id
 type Authentication struct {
-	id         string `json:"id"`
-	credential string `json:"credentialDefinition"`
-	publickey  string `json:"publicKeyBase58"`
+	ID         string `json:"id"`
+	Credential string `json:"credentialDefinition"`
+	Publickey  string `json:"publicKeyBase58"`
 	Type       string `json:"type"`
 }
 
 //Service is kind of use the id
 type Service struct {
 	Type            string `json:"type"`
-	serviceEndpoint string `json:"serviceEndPoint`
+	ServiceEndpoint string `json:"serviceEndPoint`
 }
 
-func (s *SmartContract) InitDID(ctx contractapi.TransactionContextInterface) error {
+//InitDID initialize did
+func (s *SmartContract) InitDID(ctx contractapi.TransactionContextInterface) (string, error) {
 	did := &Did{
-		context : "https://www.did.com"
-		id: encrypte.getSpecificID()
-		created : time.Now().Unix()
+		Context: "https://www.did.com",
+		ID:      encrypte.GetSpecificID(),
+		Created: time.Now().Unix(),
+		Service: initService(),
 	}
 	didJSON, err := json.Marshal(did)
-
-	err := ctx.GetStub().PutState(did.id, didJSON)
 	if err != nil {
-		return fmt.Errorf("failed to put to world state. %v", err)
+		fmt.Errorf("Unexpected Error Converting JSON!! : %q", err)
+	}
+	err = ctx.GetStub().PutState(did.ID, didJSON)
+	if err != nil {
+		return "", fmt.Errorf("failed to put to world state. %v", err)
 	}
 
-	return nil
+	return did.ID, nil
 }
 
-// CreateDid creates a new Did by placing the main Did details in the DidCollection
-// that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
-func (s *SmartContract) CreateDid(ctx contractapi.TransactionContextInterface, msg string) error {
-	pubkey, id := encrypte.decodeJwt(msg)
-	exists, err := s.AssetExists(ctx, id)
-	if err != nil {
-		return err
-	}
-	if exists {
-		var pubkeyJSON PublicKey
-		err = json.UnMarshal(pubkeyJSON, &PublicKey)
-		did := &Did{
-			context : "https://www.did.com",
-			id: id,
-			created: time.Now().Unix(),
-			publicKey: pubkeyJSON
-		}
-		didJSON, err := json.Marshal(did)
-		return ctx.GetStub().PutState(id, didJSON)
-	}else{
-		InitDID(ctx)
-	}
-	return nil
+//initService make base service
+func initService() []Service {
+	services := make([]Service, 2)
+	services[0].Type = "Authentification"
+	services[0].ServiceEndpoint = "did.com/auth"
+	services[1].Type = "LogIn"
+	services[1].ServiceEndpoint = "did.com/login"
 
+	return services
+}
+
+//initAuth make base Auth info
+func initAuth(info string, pubkeyID string) Authentication {
+	auth := Authentication{
+		ID:         encrypte.GetSpecificID(),
+		Credential: info,
+		Publickey:  pubkeyID,
+		Type:       "ECDSA",
+	}
+
+	return auth
+}
+
+// CreateDID creates a new Did by placing the main Did details in the DidCollection
+// that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
+func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, msg string) error {
+	pubkey, id, credential := encrypte.DecodeJwt(msg)
+	didJSON, exists, err := s.DidExists(ctx, id)
+	if err != nil {
+		fmt.Errorf("Unexpected error!!")
+	}
+	if !exists {
+		var did Did
+		var pubkeyJSON PublicKey
+
+		err = json.Unmarshal(pubkey, &pubkeyJSON)
+		err = json.Unmarshal(didJSON, &did)
+
+		did.Publickey[0] = pubkeyJSON
+		did.Authentication[0] = initAuth(credential, pubkeyJSON.ID)
+		didJSON, err := json.Marshal(did)
+
+		if err != nil {
+			fmt.Errorf("Unexpected Error : %q", err)
+		}
+		return ctx.GetStub().PutState(id, didJSON)
+	} else {
+		return fmt.Errorf("Don't exsit did!")
+	}
+
+}
+
+//UpdatedDID updated publickey in did
+func (s *SmartContract) UpdatedDID(ctx contractapi.TransactionContextInterface, msg string) error {
+	pubkey, id, _ := encrypte.DecodeJwt(msg)
+	didJSON, exists, err := s.DidExists(ctx, id)
+	if !exists && err != nil {
+		return fmt.Errorf("DID didn't exisits")
+	} else {
+		var did Did
+		var pubkeyJSON PublicKey
+
+		err = json.Unmarshal(pubkey, &pubkeyJSON)
+		err = json.Unmarshal(didJSON, &did)
+
+		did.Publickey[0].Revoked = time.Now().Unix()
+		did.Publickey[1] = pubkeyJSON
+		did.Authentication[0].Publickey = pubkeyJSON.ID
+		did.Updated = time.Now().Unix()
+		didJSON, err := json.Marshal(did)
+
+		if err != nil {
+			fmt.Errorf("Unexpected Error : %q", err)
+		}
+		return ctx.GetStub().PutState(id, didJSON)
+	}
+}
+
+//ReadDID find did in chaincode and watch the information
+func (s *SmartContract) ReadDID(ctx contractapi.TransactionContextInterface, msg string) (string, error) {
+	didJSON, err := ctx.GetStub().GetState(msg)
+
+	if err != nil {
+		return "", err
+	}
+
+	var did Did
+	err = json.Unmarshal(didJSON, &did)
+	if err != nil {
+		return "", fmt.Errorf("Unexpected error : %q", err)
+	}
+	return
+}
+
+//DidExists check the did exist in the chaincode
+func (s *SmartContract) DidExists(ctx contractapi.TransactionContextInterface, id string) ([]byte, bool, error) {
+	didJSON, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return nil, false, fmt.Errorf("failed to read from world state: %v", err)
+	}
+
+	return didJSON, didJSON != nil, nil
 }
