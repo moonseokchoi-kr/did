@@ -139,9 +139,9 @@ func Verify(publickey string, Signature string, message string) bool {
 	SignHash := Hash(StringToByte(message))
 	pubkey := DecodePublicKey(publickey)
 	sig := DecodeSignature(Signature)
-	Verify := ecdsa.VerifyASN1(&pubkey, SignHash, sig)
+	verify := ecdsa.VerifyASN1(&pubkey, SignHash, sig)
 
-	return Verify
+	return verify
 }
 
 /**
@@ -206,11 +206,6 @@ func GetJWT() (string, error) {
 	} else {
 		return tokenString, nil
 	}
-}
-func GetToken(j []byte) (string, error) {
-	type Claims struct {
-	}
-	return "", nil
 }
 
 /**

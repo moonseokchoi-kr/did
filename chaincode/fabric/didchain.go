@@ -154,19 +154,16 @@ func (s *SmartContract) UpdatedDID(ctx contractapi.TransactionContextInterface, 
 }
 
 //ReadDID find did in chaincode and watch the information
-func (s *SmartContract) ReadDID(ctx contractapi.TransactionContextInterface, msg string) (string, error) {
-	didJSON, err := ctx.GetStub().GetState(msg)
-
-	if err != nil {
-		return "", err
-	}
+//when makes application after change the function
+func (s *SmartContract) ReadDID(ctx contractapi.TransactionContextInterface, id, query string) (Did, error) {
+	didJSON, err := ctx.GetStub().GetState(id)
 
 	var did Did
 	err = json.Unmarshal(didJSON, &did)
 	if err != nil {
-		return "", fmt.Errorf("Unexpected error : %q", err)
+		return did, fmt.Errorf("Unexpected error : %q", err)
 	}
-	return
+	return did, nil
 }
 
 //DidExists check the did exist in the chaincode
