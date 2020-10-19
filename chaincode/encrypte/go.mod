@@ -1,4 +1,4 @@
-module github.com/moonseokchoi-kr/did/chaincode/enrypte
+module github.com/moonseokchoi-kr/did/chaincode/encrypte
 
 go 1.15
 
