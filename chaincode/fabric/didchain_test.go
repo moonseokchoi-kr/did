@@ -2,10 +2,11 @@ package did
 
 //TODO  look at the example file and change code to create fucntion
 import (
-	"did/chaincode/encrypte"
 	"did/chaincode/fabric/mocks"
 	"os"
 	"testing"
+
+	"github.com/did/chaincode/encrypte"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -41,15 +42,43 @@ func TestCreateDid(t *testing.T) {
 	if err != nil {
 		t.Errorf("DID didn't exist : %q \n didJSON :  %q", err, didJSON)
 	}
-	msg, err := encrypte.GetJWT()
+	id = "did:wul:" + encrypte.GetSpecificID()
+	claims := encrypte.CreateMsg(id, encrypte.CreatePubkey(id+"#key1", "PublickeyECDSABase58"))
+	msg, err := encrypte.GetJWT(*claims)
 	if err != nil {
 		t.Errorf("Unexpected Error : %q", err)
 	}
 	//create DID
-	err = assetTransferCC.CreateDid(transactionContext, msg)
+	err = assetTransferCC.CreateDID(transactionContext, msg)
+
 	require.NoError(t, err)
 }
 
+func TestUpdatedDID(t *testing.T) {
+	transactionContext, _ := prepMocksAsOrg1()
+	assetTransferCC := SmartContract{}
+	id := "did:wul:" + encrypte.GetSpecificID()
+	claims := encrypte.CreateMsg(id, encrypte.CreatePubkey(id+"#key1", "PublickeyECDSABase58"))
+	msg, err := encrypte.GetJWT(*claims)
+	if err != nil {
+		t.Errorf("Unexpected Error : %q", err)
+	}
+	//create DID
+	err = assetTransferCC.CreateDID(transactionContext, msg)
+	did, err1 := assetTransferCC.ReadDID(transactionContext, id)
+	if err1 != nil {
+		t.Error(did)
+	}
+
+	//Update DID
+	claims = encrypte.CreateMsg(id, encrypte.CreatePubkey(id+"#key1", "PublickeyECDSABase58"))
+	msg, err = encrypte.GetJWT(*claims)
+	err = assetTransferCC.UpdatedDID(transactionContext, msg)
+	did, _ = assetTransferCC.ReadDID(transactionContext, id)
+	if err == nil {
+		t.Log(did)
+	}
+}
 func prepMocksAsOrg1() (*mocks.TransactionContext, *mocks.ChaincodeStub) {
 	return prepMocks(myOrg1Msp, myOrg1Clientid)
 }

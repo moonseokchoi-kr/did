@@ -29,7 +29,8 @@ func TestVerify(t *testing.T) {
 }
 
 func TestGetJWT(t *testing.T) {
-	got, err := GetJWT()
+	msg := CreateMsg(GetSpecificID(), CreatePubkey(GetSpecificID(), "PublickeyECDSABase56"))
+	got, err := GetJWT(*msg)
 	if err != nil {
 		t.Error(err)
 	}

@@ -27,7 +27,7 @@ function yaml_ccp {
 }
 
 ORG=1
-P0PORT=7051
+P0PORT=10051
 CAPORT=7054
 PEERPEM=organizations/peerOrganizations/org1.did.com/tlsca/tlsca.org1.did.com-cert.pem
 CAPEM=organizations/peerOrganizations/org1.did.com/ca/ca.org1.did.com-cert.pem
@@ -35,11 +35,15 @@ CAPEM=organizations/peerOrganizations/org1.did.com/ca/ca.org1.did.com-cert.pem
 echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org1.did.com/connection-org1.json
 echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org1.did.com/connection-org1.yaml
 
+
+
+
 ORG=2
-P0PORT=9051
-CAPORT=8054
+P0PORT=11051
+CAPORT=7054
 PEERPEM=organizations/peerOrganizations/org2.did.com/tlsca/tlsca.org2.did.com-cert.pem
 CAPEM=organizations/peerOrganizations/org2.did.com/ca/ca.org2.did.com-cert.pem
 
 echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.did.com/connection-org2.json
 echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.did.com/connection-org2.yaml
+

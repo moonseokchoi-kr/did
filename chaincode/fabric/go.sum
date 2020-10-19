@@ -121,6 +121,9 @@ github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e h1:hB2xlXdHp/pmPZq
 github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e/go.mod h1:C1wdFJiN94OJF2b5HbByQZoLdCWB1Yqtg26g4irojpc=
 github.com/mailru/easyjson v0.7.1 h1:mdxE1MF9o53iCb2Ghj1VfWvh7ZOwHpnVG/xwXrV90U8=
 github.com/mailru/easyjson v0.7.1/go.mod h1:KAzv3t3aY1NaHWoQz1+4F1ccyAH66Jk7yos7ldAVICs=
+github.com/miracl/core v0.0.0-20201009093547-a649e4fb6233 h1:ljoN8wFWZJvSiimmNAGwf3idxpBpOBVzvVui8juW5N8=
+github.com/miracl/core v0.0.0-20201009093547-a649e4fb6233/go.mod h1:AnjRmgynJxt4THL5je5wR4749hZ9eMNNmxt1A6om33A=
+github.com/miracl/core v0.0.0-20201016111737-d0f15358504f h1:9b4jqGqluhrhyqYw11jy1/r9o65Or0KhNzjr5x+Bd8M=
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=

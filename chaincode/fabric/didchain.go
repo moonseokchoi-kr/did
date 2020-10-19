@@ -9,11 +9,13 @@ package did
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
-	"did/chaincode/encrypte"
+	"github.com/did/chaincode/encrypte"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"github.com/hyperledger/fabric-samples/asset-transfer-private-data/chaincode-go/chaincode"
 )
 
 // SmartContract of this fabric sample
@@ -23,13 +25,13 @@ type SmartContract struct {
 
 // Did describes main Did details that are visible to all organizations
 type Did struct {
-	Context        string           `json:"context"`
-	ID             string           `json:"id"`
-	Created        int64            `json:"created"`
-	Updated        int64            `json:updated`
-	Publickey      []PublicKey      `json:"publicKey"`
-	Authentication []Authentication `json:"authenticaiton"`
-	Service        []Service        `json:"service"`
+	Context        string         `json:"context"`
+	ID             string         `json:"id"`
+	Created        int64          `json:"created"`
+	Updated        int64          `json:updated`
+	Publickey      PublicKey      `json:"publicKey"`
+	Authentication Authentication `json:"authenticaiton"`
+	Service        []Service      `json:"service"`
 }
 
 //PublicKey is save the key for authenfication
@@ -57,11 +59,20 @@ type Service struct {
 
 //InitDID initialize did
 func (s *SmartContract) InitDID(ctx contractapi.TransactionContextInterface) (string, error) {
+	id := "did:wul:" + encrypte.GetSpecificID()
 	did := &Did{
 		Context: "https://www.did.com",
-		ID:      encrypte.GetSpecificID(),
+		ID:      id,
 		Created: time.Now().Unix(),
 		Service: initService(),
+		Publickey: PublicKey{
+			ID:        id + "#1",
+			Type:      "publickeyECDSABase64",
+			PublicKey: "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u",
+			Created:   time.Now().Unix(),
+			Revoked:   0,
+		},
+		Authentication: initAuth("testDID", "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u"),
 	}
 	didJSON, err := json.Marshal(did)
 	if err != nil {
@@ -89,7 +100,7 @@ func initService() []Service {
 //initAuth make base Auth info
 func initAuth(info string, pubkeyID string) Authentication {
 	auth := Authentication{
-		ID:         encrypte.GetSpecificID(),
+		ID:         "did:wul:" + encrypte.GetSpecificID(),
 		Credential: info,
 		Publickey:  pubkeyID,
 		Type:       "ECDSA",
@@ -113,8 +124,8 @@ func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, m
 		err = json.Unmarshal(pubkey, &pubkeyJSON)
 		err = json.Unmarshal(didJSON, &did)
 
-		did.Publickey[0] = pubkeyJSON
-		did.Authentication[0] = initAuth(credential, pubkeyJSON.ID)
+		did.Publickey = pubkeyJSON
+		did.Authentication = initAuth(credential, pubkeyJSON.ID)
 		didJSON, err := json.Marshal(did)
 
 		if err != nil {
@@ -140,9 +151,9 @@ func (s *SmartContract) UpdatedDID(ctx contractapi.TransactionContextInterface, 
 		err = json.Unmarshal(pubkey, &pubkeyJSON)
 		err = json.Unmarshal(didJSON, &did)
 
-		did.Publickey[0].Revoked = time.Now().Unix()
-		did.Publickey[1] = pubkeyJSON
-		did.Authentication[0].Publickey = pubkeyJSON.ID
+		did.Publickey.Revoked = time.Now().Unix()
+		did.Publickey = pubkeyJSON
+		did.Authentication.Publickey = pubkeyJSON.ID
 		did.Updated = time.Now().Unix()
 		didJSON, err := json.Marshal(did)
 
@@ -155,15 +166,14 @@ func (s *SmartContract) UpdatedDID(ctx contractapi.TransactionContextInterface, 
 
 //ReadDID find did in chaincode and watch the information
 //when makes application after change the function
-func (s *SmartContract) ReadDID(ctx contractapi.TransactionContextInterface, id, query string) (Did, error) {
-	didJSON, err := ctx.GetStub().GetState(id)
+func (s *SmartContract) ReadDID(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 
-	var did Did
-	err = json.Unmarshal(didJSON, &did)
+	didJSON, err := ctx.GetStub().GetState(id)
+	fmt.Print(string(didJSON))
 	if err != nil {
-		return did, fmt.Errorf("Unexpected error : %q", err)
+		return string(didJSON), fmt.Errorf("Unexpected error : %q", err)
 	}
-	return did, nil
+	return string(didJSON), nil
 }
 
 //DidExists check the did exist in the chaincode
@@ -174,4 +184,15 @@ func (s *SmartContract) DidExists(ctx contractapi.TransactionContextInterface, i
 	}
 
 	return didJSON, didJSON != nil, nil
+}
+
+func main() {
+	assetChaincode, err := contractapi.NewChaincode(&chaincode.SmartContract{})
+	if err != nil {
+		log.Panicf("Error creating asset-transfer-basic chaincode: %v", err)
+	}
+
+	if err := assetChaincode.Start(); err != nil {
+		log.Panicf("Error starting asset-transfer-basic chaincode: %v", err)
+	}
 }

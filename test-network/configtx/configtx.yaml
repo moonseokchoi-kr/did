@@ -16,7 +16,7 @@ Organizations:
 
     # SampleOrg defines an MSP using the sampleconfig.  It should never be used
     # in production but may be used as a template for other definitions
-    - &OrdererOrg
+     - &OrdererOrg
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
         Name: OrdererOrg
@@ -42,9 +42,9 @@ Organizations:
                 Rule: "OR('OrdererMSP.admin')"
 
         OrdererEndpoints:
-            - orderer.did.com:7050
+            - orderer.did.com:10050
 
-    - &Org1
+     - &Org1
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
         Name: Org1MSP
@@ -77,11 +77,11 @@ Organizations:
             # for cross org gossip communication.  Note, this value is only
             # encoded in the genesis block in the Application section context
             - Host: peer0.org1.did.com
-              Port: 7051
+              Port: 10051
             - Host: peer1.org1.did.com
-              Port: 7055
+              Port: 10055
 
-    - &Org2
+     - &Org2
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
         Name: Org2MSP
@@ -113,9 +113,11 @@ Organizations:
             # for cross org gossip communication.  Note, this value is only
             # encoded in the genesis block in the Application section context
             - Host: peer0.org2.did.com
-              Port: 9051
+              Port: 11051
             - Host: peer1.org2.did.com
-              Port: 9053
+              Port: 11053
+
+   
    
 ################################################################################
 #
@@ -225,7 +227,7 @@ Orderer: &OrdererDefaults
     EtcdRaft:
         Consenters:
         - Host: orderer.did.com
-          Port: 7050
+          Port: 10050
           ClientTLSCert: ../organizations/ordererOrganizations/did.com/orderers/orderer.did.com/tls/server.crt
           ServerTLSCert: ../organizations/ordererOrganizations/did.com/orderers/orderer.did.com/tls/server.crt
 
@@ -325,7 +327,7 @@ Profiles:
                 Organizations:
                     - *Org1
                     - *Org2
-    TwoOrgsChannel:
+
         Consortium: SampleConsortium
         <<: *ChannelDefaults
         Application:
