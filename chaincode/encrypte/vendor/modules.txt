@@ -1,0 +1,9 @@
+# github.com/btcsuite/btcutil v1.0.2
+## explicit
+github.com/btcsuite/btcutil/base58
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+## explicit
+github.com/dgrijalva/jwt-go
+# github.com/segmentio/ksuid v1.0.3
+## explicit
+github.com/segmentio/ksuid
