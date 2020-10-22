@@ -27,8 +27,8 @@ function yaml_ccp {
 }
 
 ORG=1
-P0PORT=10051
-CAPORT=7054
+P0PORT=7051
+CAPORT=7055
 PEERPEM=organizations/peerOrganizations/org1.did.com/tlsca/tlsca.org1.did.com-cert.pem
 CAPEM=organizations/peerOrganizations/org1.did.com/ca/ca.org1.did.com-cert.pem
 
@@ -39,8 +39,8 @@ echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrga
 
 
 ORG=2
-P0PORT=11051
-CAPORT=7054
+P0PORT=8051
+CAPORT=7055
 PEERPEM=organizations/peerOrganizations/org2.did.com/tlsca/tlsca.org2.did.com-cert.pem
 CAPEM=organizations/peerOrganizations/org2.did.com/ca/ca.org2.did.com-cert.pem
 

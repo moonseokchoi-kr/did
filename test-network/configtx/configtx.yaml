@@ -42,7 +42,7 @@ Organizations:
                 Rule: "OR('OrdererMSP.admin')"
 
         OrdererEndpoints:
-            - orderer.did.com:10050
+            - orderer.did.com:7050
 
      - &Org1
         # DefaultOrg defines the organization which is used in the sampleconfig
@@ -77,9 +77,9 @@ Organizations:
             # for cross org gossip communication.  Note, this value is only
             # encoded in the genesis block in the Application section context
             - Host: peer0.org1.did.com
-              Port: 10051
+              Port: 7051
             - Host: peer1.org1.did.com
-              Port: 10055
+              Port: 7052
 
      - &Org2
         # DefaultOrg defines the organization which is used in the sampleconfig
@@ -113,9 +113,9 @@ Organizations:
             # for cross org gossip communication.  Note, this value is only
             # encoded in the genesis block in the Application section context
             - Host: peer0.org2.did.com
-              Port: 11051
+              Port: 8051
             - Host: peer1.org2.did.com
-              Port: 11053
+              Port: 8052
 
    
    
@@ -227,7 +227,7 @@ Orderer: &OrdererDefaults
     EtcdRaft:
         Consenters:
         - Host: orderer.did.com
-          Port: 10050
+          Port: 7050
           ClientTLSCert: ../organizations/ordererOrganizations/did.com/orderers/orderer.did.com/tls/server.crt
           ServerTLSCert: ../organizations/ordererOrganizations/did.com/orderers/orderer.did.com/tls/server.crt
 
