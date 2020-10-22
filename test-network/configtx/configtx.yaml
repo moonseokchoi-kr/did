@@ -51,7 +51,7 @@ Organizations:
 
         # ID to load the MSP definition as
         ID: Org1MSP
-
+        
         MSPDir: ../organizations/peerOrganizations/org1.did.com/msp
 
         # Policies defines the set of policies at this level of the config tree
@@ -88,7 +88,7 @@ Organizations:
 
         # ID to load the MSP definition as
         ID: Org2MSP
-
+        
         MSPDir: ../organizations/peerOrganizations/org2.did.com/msp
 
         # Policies defines the set of policies at this level of the config tree

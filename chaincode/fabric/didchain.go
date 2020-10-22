@@ -10,9 +10,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"time"
-
-	"github.com/did/chaincode/encrypte"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/hyperledger/fabric-samples/asset-transfer-private-data/chaincode-go/chaincode"
@@ -25,13 +22,13 @@ type SmartContract struct {
 
 // Did describes main Did details that are visible to all organizations
 type Did struct {
-	Context        string         `json:"context"`
-	ID             string         `json:"id"`
-	Created        int64          `json:"created"`
-	Updated        int64          `json:updated`
-	Publickey      PublicKey      `json:"publicKey"`
-	Authentication Authentication `json:"authenticaiton"`
-	Service        []Service      `json:"service"`
+	Context        string           `json:"context"`
+	ID             string           `json:"id"`
+	Created        int64            `json:"created"`
+	Updated        int64            `json:updated`
+	Publickey      PublicKey        `json:"publicKey"`
+	Authentication []Authentication `json:"authenticaiton"`
+	Service        []Service        `json:"service"`
 }
 
 //PublicKey is save the key for authenfication
@@ -47,7 +44,7 @@ type PublicKey struct {
 type Authentication struct {
 	ID         string `json:"id"`
 	Credential string `json:"credentialDefinition"`
-	Publickey  string `json:"publicKeyBase58"`
+	Signature  string `json:"signatureBase58"`
 	Type       string `json:"type"`
 }
 
@@ -57,6 +54,7 @@ type Service struct {
 	ServiceEndpoint string `json:"serviceEndPoint`
 }
 
+/*
 //InitDID initialize did
 func (s *SmartContract) InitDID(ctx contractapi.TransactionContextInterface) (string, error) {
 	id := "did:wul:" + encrypte.GetSpecificID()
@@ -85,52 +83,17 @@ func (s *SmartContract) InitDID(ctx contractapi.TransactionContextInterface) (st
 
 	return did.ID, nil
 }
-
-//initService make base service
-func initService() []Service {
-	services := make([]Service, 2)
-	services[0].Type = "Authentification"
-	services[0].ServiceEndpoint = "did.com/auth"
-	services[1].Type = "LogIn"
-	services[1].ServiceEndpoint = "did.com/login"
-
-	return services
-}
-
-//initAuth make base Auth info
-func initAuth(info string, pubkeyID string) Authentication {
-	auth := Authentication{
-		ID:         "did:wul:" + encrypte.GetSpecificID(),
-		Credential: info,
-		Publickey:  pubkeyID,
-		Type:       "ECDSA",
-	}
-
-	return auth
-}
+*/
 
 // CreateDID creates a new Did by placing the main Did details in the DidCollection
 // that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
-func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, msg string) error {
-	pubkey, id, credential := encrypte.DecodeJwt(msg)
+func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, msg string, id string) error {
 	didJSON, exists, err := s.DidExists(ctx, id)
 	if err != nil {
-		fmt.Errorf("Unexpected error!!")
+		fmt.Errorf("Unexpected error!! : %q", err)
 	}
 	if !exists {
-		var did Did
-		var pubkeyJSON PublicKey
-
-		err = json.Unmarshal(pubkey, &pubkeyJSON)
-		err = json.Unmarshal(didJSON, &did)
-
-		did.Publickey = pubkeyJSON
-		did.Authentication = initAuth(credential, pubkeyJSON.ID)
-		didJSON, err := json.Marshal(did)
-
-		if err != nil {
-			fmt.Errorf("Unexpected Error : %q", err)
-		}
+		didJSON = []byte(msg)
 		return ctx.GetStub().PutState(id, didJSON)
 	} else {
 		return fmt.Errorf("Don't exsit did!")
@@ -139,26 +102,20 @@ func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, m
 }
 
 //UpdatedDID updated publickey in did
-func (s *SmartContract) UpdatedDID(ctx contractapi.TransactionContextInterface, msg string) error {
-	pubkey, id, _ := encrypte.DecodeJwt(msg)
+func (s *SmartContract) UpdatedDID(ctx contractapi.TransactionContextInterface, msg string, id string) error {
 	didJSON, exists, err := s.DidExists(ctx, id)
 	if !exists && err != nil {
 		return fmt.Errorf("DID didn't exisits")
 	} else {
 		var did Did
-		var pubkeyJSON PublicKey
-
-		err = json.Unmarshal(pubkey, &pubkeyJSON)
 		err = json.Unmarshal(didJSON, &did)
-
-		did.Publickey.Revoked = time.Now().Unix()
-		did.Publickey = pubkeyJSON
-		did.Authentication.Publickey = pubkeyJSON.ID
-		did.Updated = time.Now().Unix()
-		didJSON, err := json.Marshal(did)
-
+		msgByte := []byte(msg)
+		var auth Authentication
+		err = json.Unmarshal(msgByte, &auth)
+		did.Authentication = append(did.Authentication, auth)
+		didJSON, err = json.Marshal(did)
 		if err != nil {
-			fmt.Errorf("Unexpected Error : %q", err)
+			fmt.Errorf("Unexpected error : %q", err)
 		}
 		return ctx.GetStub().PutState(id, didJSON)
 	}
