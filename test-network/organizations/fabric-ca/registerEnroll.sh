@@ -10,22 +10,22 @@ function createOrg1 {
 #  rm -rf $FABRIC_CA_CLIENT_HOME/msp
 
   set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-didn --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+  fabric-ca-client enroll -u https://admin:adminpw@localhost:7055 --caname ca-didn --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   echo 'NodeOUs:
   Enable: true
   ClientOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: client
   PeerOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: peer
   AdminOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: admin
   OrdererOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: orderer' > ${PWD}/organizations/peerOrganizations/org1.did.com/msp/config.yaml
 
   echo
@@ -62,7 +62,7 @@ function createOrg1 {
   echo "## Generate the peer0 msp"
   echo
   set -x
-	fabric-ca-client enroll -u https://org1peer0:org1peer0pw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/peers/peer0.org1.did.com/msp --csr.hosts peer0.org1.did.com --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+	fabric-ca-client enroll -u https://org1peer0:org1peer0pw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/peers/peer0.org1.did.com/msp --csr.hosts peer0.org1.did.com --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/peerOrganizations/org1.did.com/msp/config.yaml ${PWD}/organizations/peerOrganizations/org1.did.com/peers/peer0.org1.did.com/msp/config.yaml
@@ -71,7 +71,7 @@ function createOrg1 {
   echo "## Generate the peer1 msp"
   echo
   set -x
-	fabric-ca-client enroll -u https://org1peer1:org1peer1pw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/peers/peer1.org1.did.com/msp --csr.hosts peer1.org1.did.com --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+	fabric-ca-client enroll -u https://org1peer1:org1peer1pw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/peers/peer1.org1.did.com/msp --csr.hosts peer1.org1.did.com --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/peerOrganizations/org1.did.com/msp/config.yaml ${PWD}/organizations/peerOrganizations/org1.did.com/peers/peer0.org1.did.com/msp/config.yaml
@@ -80,7 +80,7 @@ function createOrg1 {
   echo "## Generate the peer0-tls certificates"
   echo
   set -x
-  fabric-ca-client enroll -u https://org1peer0:org1peer0pw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/peers/peer0.org1.did.com/tls --enrollment.profile tls --csr.hosts peer0.org1.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+  fabric-ca-client enroll -u https://org1peer0:org1peer0pw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/peers/peer0.org1.did.com/tls --enrollment.profile tls --csr.hosts peer0.org1.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
 
@@ -104,7 +104,7 @@ function createOrg1 {
   echo "## Generate the peer1-tls certificates"
   echo
   set -x
-  fabric-ca-client enroll -u https://org1peer1:org1peer1pw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/peers/peer1.org1.did.com/tls --enrollment.profile tls --csr.hosts peer0.org1.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+  fabric-ca-client enroll -u https://org1peer1:org1peer1pw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/peers/peer1.org1.did.com/tls --enrollment.profile tls --csr.hosts peer0.org1.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
 
@@ -128,7 +128,7 @@ function createOrg1 {
   echo "## Generate the user msp"
   echo
   set -x
-	fabric-ca-client enroll -u https://org1user1:org1user1pw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/users/User1@org1.did.com/msp --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+	fabric-ca-client enroll -u https://org1user1:org1user1pw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/users/User1@org1.did.com/msp --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/peerOrganizations/org1.did.com/msp/config.yaml ${PWD}/organizations/peerOrganizations/org1.did.com/users/User1@org1.did.com/msp/config.yaml
@@ -139,7 +139,7 @@ function createOrg1 {
   echo "## Generate the org admin msp"
   echo
   set -x
-	fabric-ca-client enroll -u https://org1admin:org1adminpw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/users/Admin@org1.did.com/msp --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+	fabric-ca-client enroll -u https://org1admin:org1adminpw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org1.did.com/users/Admin@org1.did.com/msp --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/peerOrganizations/org1.did.com/msp/config.yaml ${PWD}/organizations/peerOrganizations/org1.did.com/users/Admin@org1.did.com/msp/config.yaml
@@ -158,22 +158,22 @@ function createOrg2 {
 #  rm -rf $FABRIC_CA_CLIENT_HOME/fabric-ca-client-config.yaml
 #  rm -rf $FABRIC_CA_CLIENT_HOME/msp
  set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-didn --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+  fabric-ca-client enroll -u https://admin:adminpw@localhost:7055 --caname ca-didn --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
 { set +x; } 2>/dev/null
 
   echo 'NodeOUs:
   Enable: true
   ClientOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: client
   PeerOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: peer
   AdminOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: admin
   OrdererOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: orderer' > ${PWD}/organizations/peerOrganizations/org2.did.com/msp/config.yaml
 
   echo
@@ -212,7 +212,7 @@ function createOrg2 {
   echo "## Generate the peer0 msp"
   echo
   set -x
-	fabric-ca-client enroll -u https://org2peer0:org2peer0pw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/peers/peer0.org2.did.com/msp --csr.hosts peer0.org2.did.com --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+	fabric-ca-client enroll -u https://org2peer0:org2peer0pw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/peers/peer0.org2.did.com/msp --csr.hosts peer0.org2.did.com --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/peerOrganizations/org2.did.com/msp/config.yaml ${PWD}/organizations/peerOrganizations/org2.did.com/peers/peer0.org2.did.com/msp/config.yaml
@@ -221,7 +221,7 @@ function createOrg2 {
   echo "## Generate the peer1 msp"
   echo
   set -x
-	fabric-ca-client enroll -u https://org2peer1:org2peer1pw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/peers/peer1.org2.did.com/msp --csr.hosts peer1.org2.did.com --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+	fabric-ca-client enroll -u https://org2peer1:org2peer1pw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/peers/peer1.org2.did.com/msp --csr.hosts peer1.org2.did.com --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/peerOrganizations/org2.did.com/msp/config.yaml ${PWD}/organizations/peerOrganizations/org2.did.com/peers/peer1.org2.did.com/msp/config.yaml
@@ -230,7 +230,7 @@ function createOrg2 {
   echo "## Generate the peer0-tls certificates"
   echo
   set -x
-  fabric-ca-client enroll -u https://org2peer0:org2peer0pw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/peers/peer0.org2.did.com/tls --enrollment.profile tls --csr.hosts peer0.org2.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+  fabric-ca-client enroll -u https://org2peer0:org2peer0pw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/peers/peer0.org2.did.com/tls --enrollment.profile tls --csr.hosts peer0.org2.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
 
@@ -254,7 +254,7 @@ function createOrg2 {
   echo "## Generate the peer1-tls certificates"
   echo
   set -x
-  fabric-ca-client enroll -u https://org2peer1:org2peer1pw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/peers/peer1.org2.did.com/tls --enrollment.profile tls --csr.hosts peer1.org2.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+  fabric-ca-client enroll -u https://org2peer1:org2peer1pw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/peers/peer1.org2.did.com/tls --enrollment.profile tls --csr.hosts peer1.org2.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
 
@@ -280,7 +280,7 @@ function createOrg2 {
   echo "## Generate the user msp"
   echo
   set -x
-	fabric-ca-client enroll -u https://org2user1:org2user1pw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/users/User1@org2.did.com/msp --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+	fabric-ca-client enroll -u https://org2user1:org2user1pw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/users/User1@org2.did.com/msp --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/peerOrganizations/org2.did.com/msp/config.yaml ${PWD}/organizations/peerOrganizations/org2.did.com/users/User1@org2.did.com/msp/config.yaml
@@ -291,7 +291,7 @@ function createOrg2 {
   echo "## Generate the org admin msp"
   echo
   set -x
-	fabric-ca-client enroll -u https://org2admin:org2adminpw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/users/Admin@org2.did.com/msp --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+	fabric-ca-client enroll -u https://org2admin:org2adminpw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/peerOrganizations/org2.did.com/users/Admin@org2.did.com/msp --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/peerOrganizations/org2.did.com/msp/config.yaml ${PWD}/organizations/peerOrganizations/org2.did.com/users/Admin@org2.did.com/msp/config.yaml
@@ -310,22 +310,22 @@ function createOrderer {
 #  rm -rf $FABRIC_CA_CLIENT_HOME/msp
 
   set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-didn --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+  fabric-ca-client enroll -u https://admin:adminpw@localhost:7055 --caname ca-didn --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   echo 'NodeOUs:
   Enable: true
   ClientOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: client
   PeerOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: peer
   AdminOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: admin
   OrdererOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-didn.pem
+    Certificate: cacerts/localhost-7055-ca-didn.pem
     OrganizationalUnitIdentifier: orderer' > ${PWD}/organizations/ordererOrganizations/did.com/msp/config.yaml
 
 
@@ -352,7 +352,7 @@ function createOrderer {
   echo "## Generate the orderer msp"
   echo
   set -x
-	fabric-ca-client enroll -u https://orderer:ordererpw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/ordererOrganizations/did.com/orderers/orderer.did.com/msp --csr.hosts orderer.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+	fabric-ca-client enroll -u https://orderer:ordererpw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/ordererOrganizations/did.com/orderers/orderer.did.com/msp --csr.hosts orderer.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/ordererOrganizations/did.com/msp/config.yaml ${PWD}/organizations/ordererOrganizations/did.com/orderers/orderer.did.com/msp/config.yaml
@@ -361,7 +361,7 @@ function createOrderer {
   echo "## Generate the orderer-tls certificates"
   echo
   set -x
-  fabric-ca-client enroll -u https://orderer:ordererpw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/ordererOrganizations/did.com/orderers/orderer.did.com/tls --enrollment.profile tls --csr.hosts orderer.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+  fabric-ca-client enroll -u https://orderer:ordererpw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/ordererOrganizations/did.com/orderers/orderer.did.com/tls --enrollment.profile tls --csr.hosts orderer.did.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/ordererOrganizations/did.com/orderers/orderer.did.com/tls/tlscacerts/* ${PWD}/organizations/ordererOrganizations/did.com/orderers/orderer.did.com/tls/ca.crt
@@ -381,7 +381,7 @@ function createOrderer {
   echo "## Generate the admin msp"
   echo
   set -x
-	fabric-ca-client enroll -u https://ordererAdmin:ordererAdminpw@localhost:7054 --caname ca-didn -M ${PWD}/organizations/ordererOrganizations/did.com/users/Admin@did.com/msp --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
+	fabric-ca-client enroll -u https://ordererAdmin:ordererAdminpw@localhost:7055 --caname ca-didn -M ${PWD}/organizations/ordererOrganizations/did.com/users/Admin@did.com/msp --tls.certfiles ${PWD}/organizations/fabric-ca/didn/tls-cert.pem
   { set +x; } 2>/dev/null
 
   cp ${PWD}/organizations/ordererOrganizations/did.com/msp/config.yaml ${PWD}/organizations/ordererOrganizations/did.com/users/Admin@did.com/msp/config.yaml
