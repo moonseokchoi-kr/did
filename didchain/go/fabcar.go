@@ -90,8 +90,8 @@ func (s *SmartContract) QueryCar(ctx contractapi.TransactionContextInterface, ca
 	return car, nil
 }
 
-// QueryAllCars returns all cars found in world state
-func (s *SmartContract) QueryAllCars(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
+// QueryAllDIDs returns all cars found in world state
+func (s *SmartContract) QueryAllDIDs(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
 	startKey := ""
 	endKey := ""
 
@@ -177,6 +177,10 @@ type Service struct {
 	Type            string `json:"type"`
 	ServiceEndpoint string `json:"serviceEndPoint`
 }
+type QueryResult struct {
+	Key    string `json:"Key"`
+	Record *Did
+}
 
 //InitDID initialize did
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
@@ -210,11 +214,11 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	}
 	didJSON, err := json.Marshal(did)
 	if err != nil {
-		fmt.Errorf("Unexpected Error Converting JSON!! : %q", err)
+		return fmt.Errorf("Unexpected Error Converting JSON!! : %q", err)
 	}
 	err = ctx.GetStub().PutState(id, didJSON)
 	if err != nil {
-		fmt.Errorf("failed to put to world state. %v", err)
+		return fmt.Errorf("failed to put to world state. %v", err)
 	}
 
 	return nil
@@ -237,6 +241,26 @@ func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, m
 
 }
 
+//AddAuthentification add contract auth in did
+func (s *SmartContract) AddAuthentification(ctx contractapi.TransactionContextInterface, msg string, id string) error {
+	exists, err := s.DidExists(ctx, "did:wul:123593020")
+	if err != nil {
+		return fmt.Errorf("Unexpected error!!: %q", err)
+	}
+	if exists {
+		var did Did
+		didJSON, _ := ctx.GetStub().GetState(id)
+		err = json.Unmarshal(didJSON, &did)
+		msgByte := []byte(msg)
+		var auth Authentication
+		err = json.Unmarshal(msgByte, &auth)
+		did.Authentication = append(did.Authentication, auth)
+		didJSON, err = json.Marshal(did)
+		err = ctx.GetStub().PutState(id, didJSON)
+	}
+	return nil
+}
+
 //UpdatedDID updated publickey in did
 func (s *SmartContract) UpdatedDID(ctx contractapi.TransactionContextInterface, msg string, id string) error {
 	exists, err := s.DidExists(ctx, id)
@@ -255,7 +279,7 @@ func (s *SmartContract) UpdatedDID(ctx contractapi.TransactionContextInterface, 
 		did.Authentication = append(did.Authentication, auth)
 		didJSON, err = json.Marshal(did)
 		if err != nil {
-			fmt.Errorf("Unexpected error : %q", err)
+			return fmt.Errorf("Unexpected error : %q", err)
 		}
 		return ctx.GetStub().PutState(id, didJSON)
 	}
@@ -271,6 +295,37 @@ func (s *SmartContract) ReadDID(ctx contractapi.TransactionContextInterface, id 
 		return string(didJSON), fmt.Errorf("Unexpected error : %q", err)
 	}
 	return string(didJSON), nil
+}
+
+// QueryAllDIDs returns all cars found in world state
+func (s *SmartContract) QueryAllDIDs(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
+	startKey := ""
+	endKey := ""
+
+	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	results := []QueryResult{}
+
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+
+		if err != nil {
+			return nil, err
+		}
+
+		did := new(Did)
+		_ = json.Unmarshal(queryResponse.Value, did)
+
+		queryResult := QueryResult{Key: queryResponse.Key, Record: did}
+		results = append(results, queryResult)
+	}
+
+	return results, nil
 }
 
 //DidExists check the did exist in the chaincode
