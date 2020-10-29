@@ -86,7 +86,7 @@ joinChannel() {
 
 updateAnchorPeers() {
   ORG=$1
-  setGlobals $ORG
+  setGlobals $ORG $PEER
 	local rc=1
 	local COUNTER=1
 	## Sometimes Join takes time, hence retry
