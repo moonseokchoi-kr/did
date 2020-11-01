@@ -187,10 +187,9 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	id := "did:wul:123593020"
 	auth := make([]Authentication, 1)
 	auth[0] = Authentication{
-		ID:         id + "#contract1",
-		Credential: "wdofajksldnasklcjwpodjfaklsmcdklsadcnsaivoiwjdifa;wdfjaskdfhaskjldbcjksalhclskchdsaiochsaoidcasjdkclbasdjcbasldcbashdcdiowudhcaslkcjabsdkcbaksdlcj",
-		Signature:  "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u",
-		Type:       "contractSignature",
+		ID:        id + "#auth1",
+		Publickey: "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u",
+		Type:      "publickeyECDSABase64",
 	}
 
 	services := make([]Service, 2)
