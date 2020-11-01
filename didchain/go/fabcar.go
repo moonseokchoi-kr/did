@@ -166,10 +166,9 @@ type PublicKey struct {
 
 //Authentication id useing authentication information when verify to id
 type Authentication struct {
-	ID         string `json:"id"`
-	Credential string `json:"credentialDefinition"`
-	Signature  string `json:"signatureBase58"`
-	Type       string `json:"type"`
+	ID        string `json:"id"`
+	Publickey string `json:publickey`
+	Type      string `json:"type"`
 }
 
 //Service is kind of use the id
