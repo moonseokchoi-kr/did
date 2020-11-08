@@ -152,16 +152,7 @@ type Contract struct {
 	Created    int64  `json:"created"`
 	Authentication Authentication `json:"Authentication"`
 	Contract   string `json:"contract"`
-	signature Signature 'json:signature'
-}
-
-//PublicKey is save the key for authenfication
-type PublicKey struct {
-	ID        string `json:"id"`
-	Type      string `json:"type"`
-	PublicKey string `json:"publicKeybase58"`
-	Created   int64  `json:"created"`
-	Revoked   int64  `json:"revoked"`
+	signature  string `json:"signature"`
 }
 
 //Authentication id useing authentication information when verify to id
@@ -171,11 +162,6 @@ type Authentication struct {
 	Type       string `json:"type"`
 }
 
-//Service is kind of use the id
-type Service struct {
-	Type            string `json:"type"`
-	ServiceEndpoint string `json:"serviceEndPoint`
-}
 type QueryResult struct {
 	Key    string `json:"Key"`
 	Record *Did
@@ -184,6 +170,7 @@ type QueryResult struct {
 //InitDID initialize did
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	id := "did:wul:123593020"
+	consumerID := "did:wul:10293840"
 	auth := make([]Authentication, 1)
 	auth[0] = Authentication{
 		ID:        id + "#auth1",
@@ -191,30 +178,19 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 		Type:      "publickeyECDSABase64",
 	}
 
-	services := make([]Service, 2)
-	services[0].Type = "signedContract"
-	services[0].ServiceEndpoint = "www.did.com/signed"
-	services[1].Type = "verifyContract"
-	services[1].ServiceEndpoint = "www.did.com/verify"
-	did := &Did{
+	ctc := &Contract{
 		Context: "https://www.did.com",
-		ID:      id,
+		SellerID:      id,
+		ConSumerID: 
 		Created: 1603343627,
-		Service: services,
-		Publickey: PublicKey{
-			ID:        id + "#1",
-			Type:      "publickeyECDSABase64",
-			PublicKey: "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u",
-			Created:   1603343627,
-			Revoked:   0,
-		},
 		Authentication: auth,
+		Signature: "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u"
 	}
-	didJSON, err := json.Marshal(did)
+	ctcJSON, err := json.Marshal(ctc)
 	if err != nil {
 		return fmt.Errorf("Unexpected Error Converting JSON!! : %q", err)
 	}
-	err = ctx.GetStub().PutState(id, didJSON)
+	err = ctx.GetStub().PutState(id, ctcJSON)
 	if err != nil {
 		return fmt.Errorf("failed to put to world state. %v", err)
 	}
@@ -225,74 +201,17 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 // CreateDID creates a new Did by placing the main Did details in the DidCollection
 // that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
 func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, msg string, id string) error {
-	exists, err := s.DidExists(ctx, "did:wul:123593020")
+	exists, err := s.DidExists(ctx, id)
 	if err != nil {
 		fmt.Errorf("Unexpected error!! : %q", err)
 	}
-	if exists {
-		didJSON, _ := ctx.GetStub().GetState("did:wul:123593020")
-		didJSON = []byte(msg)
-		return ctx.GetStub().PutState(id, didJSON)
+	if !exists {
+		ctcJSON,_ := json.Marshal(msg)
+		return ctx.GetStub().PutState(id, ctcJSON)
 	} else {
 		return fmt.Errorf("Don't exsit did!")
 	}
 
-}
-
-//AddAuthentification add contract auth in did
-func (s *SmartContract) AddAuthentification(ctx contractapi.TransactionContextInterface, msg string, id string) error {
-	exists, err := s.DidExists(ctx, "did:wul:123593020")
-	if err != nil {
-		return fmt.Errorf("Unexpected error!!: %q", err)
-	}
-	if exists {
-		var did Did
-		didJSON, _ := ctx.GetStub().GetState(id)
-		err = json.Unmarshal(didJSON, &did)
-		msgByte := []byte(msg)
-		var auth Authentication
-		err = json.Unmarshal(msgByte, &auth)
-		did.Authentication = append(did.Authentication, auth)
-		didJSON, err = json.Marshal(did)
-		err = ctx.GetStub().PutState(id, didJSON)
-	}
-	return nil
-}
-
-//UpdatedDID updated publickey in did
-func (s *SmartContract) UpdatedDID(ctx contractapi.TransactionContextInterface, msg string, id string) error {
-	exists, err := s.DidExists(ctx, id)
-	if !exists && err != nil {
-		return fmt.Errorf("DID didn't exisits")
-	} else {
-		var did Did
-		didJSON, err := ctx.GetStub().GetState(id)
-		if err != nil {
-			return fmt.Errorf("DID have problem")
-		}
-		err = json.Unmarshal(didJSON, &did)
-		msgByte := []byte(msg)
-		var auth Authentication
-		err = json.Unmarshal(msgByte, &auth)
-		did.Authentication = append(did.Authentication, auth)
-		didJSON, err = json.Marshal(did)
-		if err != nil {
-			return fmt.Errorf("Unexpected error : %q", err)
-		}
-		return ctx.GetStub().PutState(id, didJSON)
-	}
-}
-
-//ReadDID find did in chaincode and watch the information
-//when makes application after change the function
-func (s *SmartContract) ReadDID(ctx contractapi.TransactionContextInterface, id string) (string, error) {
-
-	didJSON, err := ctx.GetStub().GetState(id)
-	fmt.Print(string(didJSON))
-	if err != nil {
-		return string(didJSON), fmt.Errorf("Unexpected error : %q", err)
-	}
-	return string(didJSON), nil
 }
 
 // QueryAllDIDs returns all cars found in world state

@@ -225,13 +225,12 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 // CreateDID creates a new Did by placing the main Did details in the DidCollection
 // that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
 func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, msg string, id string) error {
-	exists, err := s.DidExists(ctx, "did:wul:123593020")
+	exists, err := s.DidExists(ctx, id)
 	if err != nil {
 		fmt.Errorf("Unexpected error!! : %q", err)
 	}
-	if exists {
-		didJSON, _ := ctx.GetStub().GetState("did:wul:123593020")
-		didJSON = []byte(msg)
+	if !exists {
+		didJSON, _ := json.Marshal(msg)
 		return ctx.GetStub().PutState(id, didJSON)
 	} else {
 		return fmt.Errorf("Don't exsit did!")
