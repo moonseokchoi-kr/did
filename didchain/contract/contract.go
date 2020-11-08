@@ -146,13 +146,13 @@ type SmartContract struct {
 
 // Did describes main Did details that are visible to all organizations
 type Contract struct {
-	Context        string           `json:"context"`
-	ID             string           `json:"id"`
-	Created        int64            `json:"created"`
-	Updated        int64            `json:updated`
-	Publickey      PublicKey        `json:"publicKey"`
-	Authentication []Authentication `json:"authenticaiton"`
-	Service        []Service        `json:"service"`
+	Context    string `json:"context"`
+	SellerID   string `json:"sellerid"`
+	ConsumerID string `json:"consumerid`
+	Created    int64  `json:"created"`
+	Authentication Authentication `json:"Authentication"`
+	Contract   string `json:"contract"`
+	signature Signature 'json:signature'
 }
 
 //PublicKey is save the key for authenfication
@@ -167,8 +167,7 @@ type PublicKey struct {
 //Authentication id useing authentication information when verify to id
 type Authentication struct {
 	ID         string `json:"id"`
-	Credential string `json:"credentialDefinition"`
-	Signature  string `json:"signatureBase58"`
+	Publickey string 'json:"publickey"'
 	Type       string `json:"type"`
 }
 
