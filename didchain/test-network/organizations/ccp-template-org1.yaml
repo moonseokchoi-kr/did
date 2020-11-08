@@ -40,7 +40,20 @@ peers:
           ${PEERPEM}
     grpcOptions:
       ssl-target-name-override: peer2.org${ORG}.example.com
-      hostnameOverride: peer2.org${ORG}.example.com        
+      hostnameOverride: peer2.org${ORG}.example.com
+orderer:
+  orderer.example.com: 
+    url: grpcs://localhost:7050
+    tlsCACerts:
+      pem: |
+          ${PEERPEMORDER}
+    grpcOptions:
+      ssl-target-name-overrid: orderer.example.com
+      grpc.http2.keepalive_time: 360
+      grpc.keepalive_time_ms: 36000
+      grpc.http2.keepalive_timeout: 180
+      grpc.keepalive_timeout_ms: 180000
+
 certificateAuthorities:
   ca.org${ORG}.example.com:
     url: https://localhost:${CAPORT}
