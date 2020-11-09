@@ -42,7 +42,7 @@ Organizations:
                 Rule: "OR('OrdererMSP.admin')"
 
         OrdererEndpoints:
-            - 116.89.189.38:7050
+            - 127.0.0.1:7050
 
     - &Org1
         # DefaultOrg defines the organization which is used in the sampleconfig
