@@ -15,6 +15,16 @@ function json_ccp {
         organizations/ccp-template.json
 }
 
+function json_ccp_profile {
+    local PP=$(one_line_pem $1)
+    local TP=$(one_line_pem $2)
+    local OP=$(one_line_pem $3)
+    sed -e "s#\${PEMPEERO}#$PP#" \
+        -e "s#\${PEMPEERT}#$TP#" \
+        -e "s#\${PEMORDER}#$OP#" \
+        organizations/ccp-template.json
+}
+
 function json_org1_ccp {
     local PP=$(one_line_pem $6)
     local CP=$(one_line_pem $7)
@@ -73,3 +83,8 @@ CAPEM=organizations/peerOrganizations/org2.example.com/ca/ca.org2.example.com-ce
 
 echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.example.com/connection-org2.json
 echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.example.com/connection-org2.yaml
+PEMCA=organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem
+PEMORDER=organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
+PEMPEERO=organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+PEMPEERT=organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+echo "$(json_ccp_profile $PEMPEERO $PEMPEERT $PEMORDER $PEMCA)" > organizations/peerOrganizations/org1.example.com/connection-profile.yaml
