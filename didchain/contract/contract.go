@@ -149,7 +149,7 @@ type Contract struct {
 	Context    string `json:"context"`
 	SellerID   string `json:"sellerid"`
 	ConsumerID string `json:"consumerid"`
-	Created    int64  `json:"created"`
+	Created    string `json:"created"`
 	Contract   string `json:"contract"`
 	Signature  string `json:"signature"`
 }
@@ -165,7 +165,7 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 		Context:    "http://wuldid..ddns.net",
 		SellerID:   "did:wul:ZTBlMDEyZDItMzc5OS00YjJiLWI3NmYtNTUyNGVmZjI0YWRl",
 		ConsumerID: "did:wul:N2FiY2IwY2QtZDMxNi00YzcwLTg3NjUtNDE1MDRhZDA0Y2Y4",
-		Created:    1604972580,
+		Created:    "1604972580",
 		Contract:   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJDb250cmFjdCIsInNlbGxlciI6IkFwcGxlIiwiY29uc3VtZXIiOiJNb29uIENob2kiLCJwcm9kdWN0IjoiaXBob24xMiIsInByaWNlIjoiMSwzMDAsMDAwIiwicGF5IjoiQ3JlZGl0Q2FyZCIsImlhdCI6MTYwNDk3MjU4MH0.jQB5jSh_8U-iL89UMhhLM5cBtP-oime6zkqSr_rI4Ho",
 		Signature:  "kPZ0yrOx+IoFPmYlgfdGwa6mEjDLl9ShPgq7DKPzc7ivAIbju6SA5KhvhGi4IhfoudA1mFkb4zP9ycKXlc0XFrRYWXdWcylY6so1kvSRX5G+Ni15V3DJl517vsbI6ZlA4PGiAcWJV1DgBIECgbRrRxopGp38G7UZe3XzN2CAnwM=",
 	}
@@ -183,7 +183,7 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 
 // CreateDID creates a new Did by placing the main Did details in the DidCollection
 // that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
-func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterface, id string, sellerID string, consumerID string, created int64, contract string, signature string) error {
+func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterface, id string, sellerID string, consumerID string, created string, contract string, signature string) error {
 	ctc := Contract{
 		Context:    "http://wuldid.ddns.net",
 		SellerID:   sellerID,

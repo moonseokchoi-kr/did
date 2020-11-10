@@ -16,6 +16,7 @@ const bearerToken = require('express-bearer-token');
 const cors = require('cors');
 const helper = require('./scripts/helper.js');
 const query = require('./scripts/query.js')
+const invoke = require('./scripts/invoke.js')
 const constants = require('./config/constants.json')
 
 const host = process.env.HOST || constants.host;
@@ -144,28 +145,6 @@ app.post('/users/login', async function (req, res) {
     }
 });
 
-app.get('/did/:orgname/:username', async function (req, res) {
-    try {
-        logger.debug('==================== QUERY BY CHAINCODE ==================');;
-
-        let message = await query.query('mychannel', 'didcontract', [], 'queryAllDIDs', req.params.username, req.params.orgname);
-
-        const response_payload = {
-            result: message,
-            error: null,
-            errorData: null
-        }
-
-        res.send(response_payload);
-    } catch (error) {
-        const response_payload = {
-            result: null,
-            error: error.name,
-            errorData: error.message
-        }
-        res.send(response_payload)
-    }
-});
 
 app.get('/contract/:orgname/:username', async function (req, res) {
     try {
@@ -190,11 +169,55 @@ app.get('/contract/:orgname/:username', async function (req, res) {
     }
 });
 
+app.get('/did/:orgname/:username', async function (req, res) {
+    try {
+        logger.debug('==================== QUERY BY CHAINCODE ==================');;
+
+        let message = await query.query('mychannel', 'didchain', [], 'queryAllDIDs', req.params.username, req.params.orgname);
+
+        const response_payload = {
+            result: message,
+            error: null,
+            errorData: null
+        }
+
+        res.send(response_payload);
+    } catch (error) {
+        const response_payload = {
+            result: null,
+            error: error.name,
+            errorData: error.message
+        }
+        res.send(response_payload)
+    }
+});
 app.get('/did/:orgname/:username/:id', async function (req, res) {
     try {
         logger.debug('==================== QUERY BY CHAINCODE ==================');;
         var arg = [req.params.id]
-        let message = await query.query('mychannel', 'didcontract', arg , 'readDID', req.params.username, req.params.orgname);
+        let message = await query.query('mychannel', 'didchain', arg , 'readDID', req.params.username, req.params.orgname);
+
+        const response_payload = {
+            result: message,
+            error: null,
+            errorData: null
+        }
+
+        res.send(response_payload);
+    } catch (error) {
+        const response_payload = {
+            result: null,
+            error: error.name,
+            errorData: error.message
+        }
+        res.send(response_payload)
+    }
+});
+app.get('/contract/:orgname/:username/:id', async function (req, res) {
+    try {
+        logger.debug('==================== QUERY BY CHAINCODE ==================');;
+        var arg = [req.params.id]
+        let message = await query.query('mychannel', 'didcontract', arg , 'readContract', req.params.username, req.params.orgname);
 
         const response_payload = {
             result: message,
@@ -215,10 +238,14 @@ app.get('/did/:orgname/:username/:id', async function (req, res) {
 app.put('/did/:orgname/:username', async function (req, res) {
     try {
         logger.debug('==================== QUERY BY CHAINCODE ==================');
-        var args = req.body.args
-
-        let message = await query.query('mychannel', 'didcontract',args , 'createDID', req.params.username, req.params.orgname);
-
+        var args = [req.body.id, req.body.created, req.body.publicKey, req.body.authenticaiton]
+        args.forEach((element)=>{
+            if(element != undefined){
+                console.log(`args:${element}`)
+            }
+        })
+        let message = await invoke.submitTransaction( req.params.username, req.params.orgname, 'mychannel', 'didchain', 'createDID',args);
+        console.log(`message result is : ${message}`)
         const response_payload = {
             result: message,
             error: null,
@@ -235,14 +262,17 @@ app.put('/did/:orgname/:username', async function (req, res) {
         res.send(response_payload)
     }
 });
-
-app.put('/did/:orgname/:username', async function (req, res) {
+app.put('/contract/:orgname/:username', async function (req, res) {
     try {
         logger.debug('==================== QUERY BY CHAINCODE ==================');
-        var args = req.body.args
+        var args = [req.body.id, req.body.sellerid, req.body.consumerid, req.body.created, req.body.contract, req.body.signature]
 
-        let message = await query.query('mychannel', 'didcontract',args , 'createDID', req.params.username, req.params.orgname);
-
+        args.forEach((element)=>{
+            if(element != undefined){
+                console.log(`args:${element}`)
+            }
+        })
+        let message = await invoke.submitTransaction( req.params.username, req.params.orgname, 'mychannel', 'didcontract', 'createContract',args);
         const response_payload = {
             result: message,
             error: null,
@@ -263,31 +293,13 @@ app.put('/did/:orgname/:username', async function (req, res) {
 app.post('/did/:orgname/:username', async function (req, res) {
     try {
         logger.debug('==================== QUERY BY CHAINCODE ==================');;
-
-        let message = await query.query('mychannel', 'didchain', req.args, 'updatedDID', req.params.username, req.parmas.orgname);
-
-        const response_payload = {
-            result: message,
-            error: null,
-            errorData: null
-        }
-
-        res.send(response_payload);
-    } catch (error) {
-        const response_payload = {
-            result: null,
-            error: error.name,
-            errorData: error.message
-        }
-        res.send(response_payload)
-    }
-});
-
-app.post('/did/:orgname/:username/auth', async function (req, res) {
-    try {
-        logger.debug('==================== QUERY BY CHAINCODE ==================');;
-
-        let message = await query.query('mychannel', 'didchain', req.args, 'addAuthentification', req.parmas.username, req.params.orgname);
+        var args= [req.body.publicKey, req.body.authenticaiton, req.body.id]
+        args.forEach((element)=>{
+            if(element != undefined){
+                console.log(`args:${element}`)
+            }
+        })
+        let message = await invoke.submitTransaction( req.params.username, req.params.orgname, 'mychannel', 'didchain', 'updatedDID',args);
 
         const response_payload = {
             result: message,
@@ -305,3 +317,4 @@ app.post('/did/:orgname/:username/auth', async function (req, res) {
         res.send(response_payload)
     }
 });
+

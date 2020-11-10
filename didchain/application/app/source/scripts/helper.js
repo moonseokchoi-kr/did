@@ -10,10 +10,10 @@ const util = require('util');
 const getCCP = async (org) => {
     let ccpPath;
     if (org == "Org1") {
-        ccpPath = path.resolve(__dirname, '..', 'config', 'connection-org1.json');
+        ccpPath = path.resolve(__dirname, '..', '..', '..','..','test-network','organizations','peerOrganizations','org1.example.com','connection-org1.json');
 
     } else if (org == "Org2") {
-        ccpPath = path.resolve(__dirname, '..', 'config', 'connection-org2.json');
+        ccpPath = path.resolve(__dirname, '..', '..', '..','..','test-network','organizations','peerOrganizations','org2.example.com','connection-org2.json');
     } else
         return null
     const ccpJSON = fs.readFileSync(ccpPath, 'utf8')

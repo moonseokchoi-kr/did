@@ -46,14 +46,12 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
         if ( fcn == 'queryAllDIDs' || fcn == 'queryAllContracts') {
             result = await contract.evaluateTransaction(fcn);
 
-        } else if (fcn == "createDID" || fcn == "readDID"
-        || fcn == "updatedDID") {
+        } else {
             //args[0]=message, args[1]=id
-            result = await contract.submitTransaction(fcn, args[0], args[1]);
+            result = await contract.evaluateTransaction(fcn, args[0]);
             // return result
-        } else{
-            result = await contract.evaluateTransaction(fcn, args[0])
         }
+        
         console.log(result)
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
 
@@ -67,5 +65,6 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
 }
 
 module.exports={
-    query: query
+    query: query,
+
 }

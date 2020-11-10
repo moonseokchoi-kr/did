@@ -148,8 +148,8 @@ type SmartContract struct {
 type Did struct {
 	Context        string    `json:"context"`
 	ID             string    `json:"id"`
-	Created        int64     `json:"created"`
-	Updated        int64     `json:"updated"`
+	Created        string    `json:"created"`
+	Updated        string    `json:"updated"`
 	Publickey      string    `json:"publicKey"`
 	Authentication string    `json:"authenticaiton"`
 	Service        []Service `json:"service"`
@@ -179,7 +179,7 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	did := &Did{
 		Context:        "https://www.did.com",
 		ID:             id,
-		Created:        1603343627,
+		Created:        "1603343627",
 		Service:        services,
 		Publickey:      "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u",
 		Authentication: "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u",
@@ -198,7 +198,7 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 
 // CreateDID creates a new Did by placing the main Did details in the DidCollection
 // that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
-func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, id string, created int64, publickey string, auth string) error {
+func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, id string, created string, publickey string, auth string) error {
 	exists, err := s.DidExists(ctx, id)
 	services := make([]Service, 2)
 	services[0].Type = "signedContract"

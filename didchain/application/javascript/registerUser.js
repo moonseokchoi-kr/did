@@ -37,7 +37,7 @@ async function main() {
 
         // Get the CA client object from the gateway for interacting with the CA.
         const ca = gateway.getClient().getCertificateAuthority();
-       
+        const adminIdentity= gateway.getCurrentIdentity()
         // Register the user, enroll the user, and import the new identity into the wallet.
         const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: 'appUser', role: 'client' }, adminIdentity);
         const enrollment = await ca.enroll({ enrollmentID: 'appUser', enrollmentSecret: secret });
@@ -46,7 +46,7 @@ async function main() {
         console.log('Successfully registered and enrolled admin user "user1" and imported it into the wallet');
 
     } catch (error) {
-        console.error(`Failed to register user "user1": ${error}`);
+        console.error(`Failed to register user "appUser": ${error}`);
         process.exit(1);
     }
 }
