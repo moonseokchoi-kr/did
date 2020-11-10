@@ -148,49 +148,32 @@ type SmartContract struct {
 type Contract struct {
 	Context    string `json:"context"`
 	SellerID   string `json:"sellerid"`
-	ConsumerID string `json:"consumerid`
+	ConsumerID string `json:"consumerid"`
 	Created    int64  `json:"created"`
-	Authentication Authentication `json:"Authentication"`
 	Contract   string `json:"contract"`
-	signature  string `json:"signature"`
-}
-
-//Authentication id useing authentication information when verify to id
-type Authentication struct {
-	ID         string `json:"id"`
-	Publickey string 'json:"publickey"'
-	Type       string `json:"type"`
+	Signature  string `json:"signature"`
 }
 
 type QueryResult struct {
 	Key    string `json:"Key"`
-	Record *Did
+	Record *Contract
 }
 
-//InitDID initialize did
+//InitLedger initialize Ledger
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	id := "did:wul:123593020"
-	consumerID := "did:wul:10293840"
-	auth := make([]Authentication, 1)
-	auth[0] = Authentication{
-		ID:        id + "#auth1",
-		Publickey: "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u",
-		Type:      "publickeyECDSABase64",
-	}
-
-	ctc := &Contract{
-		Context: "https://www.did.com",
-		SellerID:      id,
-		ConSumerID: 
-		Created: 1603343627,
-		Authentication: auth,
-		Signature: "13n4s5tFAmoCYHLsnJ9k1nspszbuQgvjaFrmJ8cSbfLmHDGNDkc69XCExX9PpbDBLA25VK2GsvYXvXEi9xr1DWEbVfUJu8u"
+	ctc := Contract{
+		Context:    "http://wuldid..ddns.net",
+		SellerID:   "did:wul:ZTBlMDEyZDItMzc5OS00YjJiLWI3NmYtNTUyNGVmZjI0YWRl",
+		ConsumerID: "did:wul:N2FiY2IwY2QtZDMxNi00YzcwLTg3NjUtNDE1MDRhZDA0Y2Y4",
+		Created:    1604972580,
+		Contract:   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJDb250cmFjdCIsInNlbGxlciI6IkFwcGxlIiwiY29uc3VtZXIiOiJNb29uIENob2kiLCJwcm9kdWN0IjoiaXBob24xMiIsInByaWNlIjoiMSwzMDAsMDAwIiwicGF5IjoiQ3JlZGl0Q2FyZCIsImlhdCI6MTYwNDk3MjU4MH0.jQB5jSh_8U-iL89UMhhLM5cBtP-oime6zkqSr_rI4Ho",
+		Signature:  "kPZ0yrOx+IoFPmYlgfdGwa6mEjDLl9ShPgq7DKPzc7ivAIbju6SA5KhvhGi4IhfoudA1mFkb4zP9ycKXlc0XFrRYWXdWcylY6so1kvSRX5G+Ni15V3DJl517vsbI6ZlA4PGiAcWJV1DgBIECgbRrRxopGp38G7UZe3XzN2CAnwM=",
 	}
 	ctcJSON, err := json.Marshal(ctc)
 	if err != nil {
 		return fmt.Errorf("Unexpected Error Converting JSON!! : %q", err)
 	}
-	err = ctx.GetStub().PutState(id, ctcJSON)
+	err = ctx.GetStub().PutState("2b1e6766-2310-11eb-adc1-0242ac120002", ctcJSON)
 	if err != nil {
 		return fmt.Errorf("failed to put to world state. %v", err)
 	}
@@ -200,13 +183,22 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 
 // CreateDID creates a new Did by placing the main Did details in the DidCollection
 // that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
-func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, msg string, id string) error {
+func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, id string, sellerID string, consumerID string, created int64, contract string, signature string) error {
+	ctc := Contract{
+		Context:    "http://wuldid.ddns.net",
+		SellerID:   sellerID,
+		ConsumerID: consumerID,
+		Created:    created,
+		Contract:   contract,
+		Signature:  signature,
+	}
+
 	exists, err := s.DidExists(ctx, id)
 	if err != nil {
 		fmt.Errorf("Unexpected error!! : %q", err)
 	}
 	if !exists {
-		ctcJSON,_ := json.Marshal(msg)
+		ctcJSON, _ := json.Marshal(ctc)
 		return ctx.GetStub().PutState(id, ctcJSON)
 	} else {
 		return fmt.Errorf("Don't exsit did!")
@@ -214,8 +206,32 @@ func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, m
 
 }
 
-// QueryAllDIDs returns all cars found in world state
-func (s *SmartContract) QueryAllDIDs(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
+//ReadSignature Contract block get Signature
+func (s *SmartContract) ReadSignature(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	ctcJSON, err := ctx.GetStub().GetState(id)
+	fmt.Print(string(ctcJSON))
+	if err != nil {
+		return string(ctcJSON), fmt.Errorf("Unexpected error : %q", err)
+	}
+	ctc := new(Contract)
+	_ = json.Unmarshal(ctcJSON, ctc)
+	return ctc.Signature, nil
+}
+
+//ReadDID find did in chaincode and watch the information
+//when makes application after change the function
+func (s *SmartContract) ReadDID(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+
+	ctcJSON, err := ctx.GetStub().GetState(id)
+	fmt.Print(string(ctcJSON))
+	if err != nil {
+		return string(ctcJSON), fmt.Errorf("Unexpected error : %q", err)
+	}
+	return string(ctcJSON), nil
+}
+
+// QueryAllContracts returns all cars found in world state
+func (s *SmartContract) QueryAllContracts(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
 	startKey := ""
 	endKey := ""
 
@@ -235,7 +251,7 @@ func (s *SmartContract) QueryAllDIDs(ctx contractapi.TransactionContextInterface
 			return nil, err
 		}
 
-		did := new(Did)
+		did := new(Contract)
 		_ = json.Unmarshal(queryResponse.Value, did)
 
 		queryResult := QueryResult{Key: queryResponse.Key, Record: did}
@@ -247,27 +263,12 @@ func (s *SmartContract) QueryAllDIDs(ctx contractapi.TransactionContextInterface
 
 //DidExists check the did exist in the chaincode
 func (s *SmartContract) DidExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
-	didJSON, err := ctx.GetStub().GetState(id)
+	ctcJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
-		return didJSON != nil, fmt.Errorf("failed to read from world state: %v", err)
+		return ctcJSON != nil, fmt.Errorf("failed to read from world state: %v", err)
 	}
 
-	return didJSON != nil, nil
-}
-
-// ChangeCarOwner updates the owner field of car with given id in world state
-func (s *SmartContract) ChangeCarOwner(ctx contractapi.TransactionContextInterface, carNumber string, newOwner string) error {
-	car, err := s.QueryCar(ctx, carNumber)
-
-	if err != nil {
-		return err
-	}
-
-	car.Owner = newOwner
-
-	carAsBytes, _ := json.Marshal(car)
-
-	return ctx.GetStub().PutState(carNumber, carAsBytes)
+	return ctcJSON != nil, nil
 }
 
 func main() {

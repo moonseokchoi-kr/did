@@ -83,6 +83,7 @@ CAPEM=organizations/peerOrganizations/org2.example.com/ca/ca.org2.example.com-ce
 
 echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.example.com/connection-org2.json
 echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.example.com/connection-org2.yaml
+
 PEMCA=organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem
 PEMORDER=organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
 PEMPEERO=organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
