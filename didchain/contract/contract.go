@@ -183,7 +183,7 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 
 // CreateDID creates a new Did by placing the main Did details in the DidCollection
 // that can be read by both organizations. The appraisal value is stored in the owners org specific collection.
-func (s *SmartContract) CreateDID(ctx contractapi.TransactionContextInterface, id string, sellerID string, consumerID string, created int64, contract string, signature string) error {
+func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterface, id string, sellerID string, consumerID string, created int64, contract string, signature string) error {
 	ctc := Contract{
 		Context:    "http://wuldid.ddns.net",
 		SellerID:   sellerID,
@@ -220,7 +220,7 @@ func (s *SmartContract) ReadSignature(ctx contractapi.TransactionContextInterfac
 
 //ReadDID find did in chaincode and watch the information
 //when makes application after change the function
-func (s *SmartContract) ReadDID(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+func (s *SmartContract) ReadContract(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 
 	ctcJSON, err := ctx.GetStub().GetState(id)
 	fmt.Print(string(ctcJSON))
